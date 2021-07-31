@@ -1,0 +1,1 @@
+/usr/bin/cc -g CMakeFiles/ProgettoApi_2021.dir/main.c.o -o ProgettoApi_2021 
