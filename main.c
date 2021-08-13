@@ -4,6 +4,10 @@
 
 #define N_MAX_LINEE 1000
 
+#define numN 10                                        //   leba
+
+#define INFINITY 99999                              // leba
+
 typedef struct Nodo{
     int a;
     char *info2;
@@ -28,6 +32,9 @@ typedef struct DistanzaNin{
 } distanzaMIn;
 
 void createGraph(char **lineaLetta);
+
+int dijkstra(int numN,int G[numN][numN],int startnode);
+
 
 int main() {
 
@@ -63,7 +70,6 @@ int main() {
     printf(" numnodi is %s", noNod);
     numNodi = atoi(noNod);                      // converto stringa in int
     printf(" numnodi is now %d", numNodi);
-
     lungcl = strtok(NULL, " ");          // adesso in puntatore punta al prossimo token
     printf(" lungClassif is %s", lungcl);
     int lungClassific= atoi(lungcl);
@@ -75,7 +81,6 @@ int main() {
     lines = (char **) malloc(N_MAX_LINEE * sizeof(char *));
     while (fgets(buf, lungStrin, fp) != NULL) {      // while (fgets(buf, lungStrin, stdin)!=null;    per dopo quando usero input da stdinput
         if (strcmp(buf, "q\n") == 0) {
-
             break;
         }
         lines[num_linee] = (char *)malloc(sizeof(buf)+1);
@@ -88,39 +93,61 @@ int main() {
     printf(" \nlines[11] is %s", lines[10]);
 
     int numGrafi = (num_linee/(numNodi+1));
-    printf(" \nnumGrafi is %d \n\n", numGrafi);
+   //                                                                                  printf(" \nnumGrafi is %d \n\n", numGrafi);
+    int grafo[4][4];
+    char *richiesta;
+    int matrDistMin[numGrafi][2];
 
-    char * richiesta;
-    int pesi[numGrafi];
     for (int j = 0; j < num_linee; j++)  {
-        sscanf(lines[j], "%s", richiesta);
-        if (strncmp(richiesta, "AggiungiGrafo", 10) == 0) {
-            for (int i = 0; j < numNodi ; j++)
-            {scanf("%d,",&pesi[i]);
+
+        richiesta = lines[j];
+        if (strncmp(richiesta, "TopK", 10) == 0) {
+            //       printDistMIn();
+        } else if (strncmp(richiesta, "AggiungiGrafo\r\n", 50) == 0) {
+            j++;
+                                                                    //mi ritorna puntatore alla stringa
+                                                            //      printf(" numnodi is %s", noNod);
+            for (int i = 0; i < numNodi ; i++){
+                int k=0;
+                char *stringPesi = strtok(lines[j], ",");
+                int peso= atoi(stringPesi);
+                grafo[i][k]=peso;
+                while(stringPesi != NULL ){
+                    k++;
+                    stringPesi = strtok(NULL, ",");
+                    if(stringPesi != NULL){
+                        peso= atoi(stringPesi);
+                        grafo[i][k]=peso;
+                    }
+                    //{scanf("%d,",&
+                }
+                j++;
             }
-    //        createGraph(lines[j],lines[j+1],lines[j+2],lines[j+3]);
-        } else if (strncmp(richiesta, "TopK", 10) == 0) {
-     //       printDistMIn();
+            for (int g = 0; g < numNodi ; g++){
+                for (int h = 0; h < numNodi ; h++){
+                    printf("%d - %d) is %d \n",g,h,grafo[g][h]);
+                }
+            }
+            for (int k = 0; k < numNodi ; k++){
+                for (int l = 0; l < numNodi ; l++){
+                    //   matrDistMin[k][l]= dijkstra(numNodi,grafo[][],0);
+                }
+            }
+            //        createGraph(lines[j],lines[j+1],lines[j+2],lines[j+3]);
+
         }
     }
-
-
-
     for(int i=0 ;i<numGrafi;i++){
-        createGraph(lines);
+      //  createGraph(lines);
     }
 
-
-
   //  graph gr[]
-
-
-
 
     for (int i = 0; i < num_linee; i++) {     //Forse deve essere   for int i=1 ... perche ho reso la prima linea null quando ho modificato con strtok
         free(lines[i]);
     }
     free(lines);
+    free(primaLinea);
 
     fclose(fp);
 
@@ -128,21 +155,3 @@ int main() {
 }
 
 
-void createGraph(char **lineaLetta){
-    char *pesiDiNodi,*pesiDiNodi2,*pesiDiNodi3,*pesiDiNodi1;
-    pesiDiNodi = strtok(lineaLetta[0], ",");     //mi ritorna puntatore alla stringa
-    printf(" pesiDiNodi is %s", pesiDiNodi);
-    int pesoDiNod1 = atoi(pesiDiNodi);
-
-    pesiDiNodi1 = strtok(NULL, ",");          // adesso in puntatore punta al prossimo token
-    printf(" pesiDiNod1 is %s", pesiDiNodi1);
-    int pesiDiNod2= atoi(pesiDiNodi);
-
-    pesiDiNodi2 = strtok(NULL, ",");          // adesso in puntatore punta al prossimo token
-    printf(" pesiDiNod3 is %s", pesiDiNod2);
-    int pesiDiNod3= atoi(pesiDiNodi);
-
-    pesiDiNodi3 = strtok(NULL, ",");          // adesso in puntatore punta al prossimo token
-    printf(" pesiDiNod4 is %s", pesiDiNod3);
-
-};
