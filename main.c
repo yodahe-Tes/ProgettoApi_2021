@@ -2,156 +2,222 @@
 #include <string.h>
 #include <stdlib.h>
 
-#define N_MAX_LINEE 1000
+#define N_MAX_LINEE 310000
+#define MAX_BUF 20000
+#define MAXGRAF 1500
+#define LUNG_MAX_STRING 20000
+#define INFINITY 9999999
 
-#define numN 10                                        //   leba
+typedef struct DistanzaMin{
+    int indiceGraf;
+    int SomDistMin;
+    int graduatoria;
+} strDistMin;
 
-#define INFINITY 99999                              // leba
+int left(int i){
+    return 2*i;
+}
 
-typedef struct Nodo{
-    int a;
-    char *info2;
+int right(int i){
+    return 2*i+1;
+}
 
-} nodo;
 
-typedef struct Arco{
-    char info1;
-    char info2;
-} arco;
+void maxHeapify(strDistMin arrStrDist[], int i, int length){
+    int l= left(i);
+    int r= right(i);
+    int tmp,tmp2;
+    int max;
+    if ((l <= length) && (arrStrDist[l].SomDistMin > arrStrDist[i].SomDistMin))
+        max = l;
+    else
+        max=i;
 
-typedef struct Grafo{
-    int indice;
-    int nodo;
-    int arco;
-    int **peso;
-} grafo;
+    if ((r<= length) && (arrStrDist[r].SomDistMin > arrStrDist[max].SomDistMin))
+        max=r;
 
-typedef struct DistanzaNin{
-    int numGrafo;
-    int distMin;
-} distanzaMIn;
+    if (max!= i) {
+        tmp=arrStrDist[i].SomDistMin;
+        tmp2=arrStrDist[i].indiceGraf;
+        arrStrDist[i].SomDistMin=arrStrDist[max].SomDistMin;
+        arrStrDist[i].indiceGraf=arrStrDist[max].indiceGraf;
 
-void createGraph(char **lineaLetta);
+        arrStrDist[max].SomDistMin=tmp;
+        arrStrDist[max].indiceGraf=tmp2;
 
-int dijkstra(int numN,int G[numN][numN],int startnode);
+        maxHeapify(arrStrDist, max, length);
+    }
+}
+
+void buildMaxHeap(strDistMin arrStrDist[], int length){
+
+    for (int i= length/2; i>=0; i--) {
+        maxHeapify(arrStrDist, i, length);
+    }
+}
+
+void heapsort(strDistMin arrStrDist[], int length){
+    buildMaxHeap(arrStrDist, length);
+    for (int i= length; i>0; i--) {
+        int tmp=arrStrDist[i].SomDistMin;
+        int tmp2=arrStrDist[i].indiceGraf;
+        arrStrDist[i].SomDistMin=arrStrDist[0].SomDistMin;
+        arrStrDist[i].indiceGraf=arrStrDist[0].indiceGraf;
+        arrStrDist[0].SomDistMin=tmp;
+        arrStrDist[0].indiceGraf=tmp2;
+        length--;
+        maxHeapify(arrStrDist, 0, length);
+    }
+}
+
+int dijkstra(int numVert,int G[numVert][numVert],int sorgente);
 
 
 int main() {
 
-
-
     FILE *fp;
-    fp = fopen("input_1.txt", "r");/*apro file*/
+    fp = fopen("input_2", "r");
     if (fp == NULL) {
         perror("Unable to open file!");
         exit(1);
     }
-    char ** lines = NULL;
-    char ** primaLinea;
+
+    char ** lines ;
+    char *primaLinea;
     int num_linee = 0;
-    int lungStrin =70 ;
-    char buf[70];
+    int lungStrin =LUNG_MAX_STRING ;
+    char buf[MAX_BUF];
     int numNodi;
-    int lungClassif;
-
-    //   if (fgets(buf, lungStrin, fp)!null){
-    //       sscanf( %d %d,&a[0],&a[1])
-    //  };
-
-    primaLinea = (char **) malloc(N_MAX_LINEE * sizeof(char *));
-     fgets(buf, lungStrin, fp);                                                          // while (fgets(buf, lungStrin, stdin)!=null;    per dopo quando usero input da stdinput
-        primaLinea[0] = (char *)malloc(sizeof(buf)+1);
-        strncpy(primaLinea[0], buf,70);
+    int lungClassific=0;
 
 
+    fgets(buf, lungStrin, fp);                                                          // while (fgets(buf, lungStrin, stdin)!=null;    per dopo quando usero input da stdinput
+    primaLinea = (char *)malloc(sizeof(buf)+1);
+    strncpy(primaLinea, buf,MAX_BUF+1);
+    if (strncmp(primaLinea, "Topk\n", LUNG_MAX_STRING) == 0) {
+        printf("\n");
+        fgets(buf, lungStrin, fp);                                                          // while (fgets(buf, lungStrin, stdin)!=null;    per dopo quando usero input da stdinput
+        strncpy(primaLinea, buf,MAX_BUF);
+    }
     char *noNod, *lungcl;
-
-    noNod = strtok(primaLinea[0], " ");     //mi ritorna puntatore alla stringa
-    printf(" numnodi is %s", noNod);
-    numNodi = atoi(noNod);                      // converto stringa in int
-    printf(" numnodi is now %d", numNodi);
-    lungcl = strtok(NULL, " ");          // adesso in puntatore punta al prossimo token
-    printf(" lungClassif is %s", lungcl);
-    int lungClassific= atoi(lungcl);
-    printf(" lungClassif is now %d", lungClassific);
-
-    int distMin[lungClassific] ;
-
-
+    noNod = strtok(primaLinea, " ");
+    numNodi = atoi(noNod);
+    lungcl = strtok(NULL, " ");
+    lungClassific= atoi(lungcl);
+    //printf(" lungClassif is now %d", lungClassific);
     lines = (char **) malloc(N_MAX_LINEE * sizeof(char *));
-    while (fgets(buf, lungStrin, fp) != NULL) {      // while (fgets(buf, lungStrin, stdin)!=null;    per dopo quando usero input da stdinput
-        if (strcmp(buf, "q\n") == 0) {
-            break;
-        }
-        lines[num_linee] = (char *)malloc(sizeof(buf)+1);
-        strncpy(lines[num_linee], buf,70);
-        printf(" \nlines[%d] is %s", num_linee,lines[num_linee]);
-        num_linee++;
 
+
+    while (fgets(buf, lungStrin, fp) != NULL) {                   // while (fgets(buf, lungStrin, stdin)!=null;    per dopo quando usero input da stdinput
+        lines[num_linee] = (char *)malloc(sizeof(buf)+1);
+        strncpy(lines[num_linee], buf,MAX_BUF);
+        num_linee++;
     }
 
-    printf(" \nlines[11] is %s", lines[10]);
-
-    int numGrafi = (num_linee/(numNodi+1));
-   //                                                                                  printf(" \nnumGrafi is %d \n\n", numGrafi);
-    int grafo[4][4];
+    int  grafo[numNodi][numNodi];
     char *richiesta;
-    int matrDistMin[numGrafi][2];
-
-    for (int j = 0; j < num_linee; j++)  {
-
+    int numIndDaStampare;
+    int grafIndex=0;
+    strDistMin ArrStrdistMIn[MAXGRAF];
+    ArrStrdistMIn->indiceGraf=0;
+    ArrStrdistMIn->SomDistMin=0;
+    int j=0;
+    while(j<num_linee){
         richiesta = lines[j];
-        if (strncmp(richiesta, "TopK", 10) == 0) {
-            //       printDistMIn();
-        } else if (strncmp(richiesta, "AggiungiGrafo\r\n", 50) == 0) {
+        if (strncmp(richiesta, "TopK", LUNG_MAX_STRING) == 0||strncmp(richiesta, "TopK\n", LUNG_MAX_STRING) == 0) {
+            if(grafIndex==0){
+                printf("\n");
+            }
+            else{
+                heapsort(ArrStrdistMIn, grafIndex - 1);
+                if (lungClassific > grafIndex)
+                    numIndDaStampare=grafIndex;
+                else
+                    numIndDaStampare=lungClassific;
+
+                for (int i = 0; i < numIndDaStampare; i++){
+                    printf("%d ",ArrStrdistMIn[i].indiceGraf);
+                }
+                printf("\n");
+            }
             j++;
-                                                                    //mi ritorna puntatore alla stringa
-                                                            //      printf(" numnodi is %s", noNod);
+        }
+        else if (strncmp(richiesta, "AggiungiGrafo\n", LUNG_MAX_STRING) == 0) {
+
             for (int i = 0; i < numNodi ; i++){
+                j++;
                 int k=0;
                 char *stringPesi = strtok(lines[j], ",");
                 int peso= atoi(stringPesi);
                 grafo[i][k]=peso;
-                while(stringPesi != NULL ){
+                while(stringPesi != NULL && k < numNodi ){
                     k++;
                     stringPesi = strtok(NULL, ",");
                     if(stringPesi != NULL){
                         peso= atoi(stringPesi);
                         grafo[i][k]=peso;
                     }
-                    //{scanf("%d,",&
-                }
-                j++;
-            }
-            for (int g = 0; g < numNodi ; g++){
-                for (int h = 0; h < numNodi ; h++){
-                    printf("%d - %d) is %d \n",g,h,grafo[g][h]);
                 }
             }
-            for (int k = 0; k < numNodi ; k++){
-                for (int l = 0; l < numNodi ; l++){
-                    //   matrDistMin[k][l]= dijkstra(numNodi,grafo[][],0);
-                }
-            }
-            //        createGraph(lines[j],lines[j+1],lines[j+2],lines[j+3]);
+            int sumOFDist = dijkstra(numNodi, grafo, 0);
+            //printf("\n%d",sumOFDist);
+            ArrStrdistMIn[grafIndex].indiceGraf=grafIndex;
+            ArrStrdistMIn[grafIndex].SomDistMin=sumOFDist;
+            ArrStrdistMIn[grafIndex].graduatoria=grafIndex;
 
+            grafIndex++;
+            j++;
         }
-    }
-    for(int i=0 ;i<numGrafi;i++){
-      //  createGraph(lines);
-    }
 
-  //  graph gr[]
-
-    for (int i = 0; i < num_linee; i++) {     //Forse deve essere   for int i=1 ... perche ho reso la prima linea null quando ho modificato con strtok
+    }
+    for (int i = 0; i < num_linee; i++) {
         free(lines[i]);
     }
     free(lines);
-    free(primaLinea);
-
     fclose(fp);
-
+    //printf("\nho finito\n\n");
     return 0;
 }
 
 
+
+int dijkstra (int numVert, int G[numVert][numVert], int sorgente ){
+    int dist[numVert];
+    int visited[numVert],adj;
+
+    for(int vr=0; vr < numVert; vr++){
+        for(int ed=0; ed < numVert; ed++){
+            if(G[vr][ed]==0)
+                G[vr][ed]=INFINITY;
+        }
+        dist[vr]=G[sorgente][vr];
+        visited[vr]=0;
+    }
+    dist[sorgente]=0;
+    visited[sorgente]=1;
+
+    int shortestpath;
+    for(int passo=1; passo < numVert - 1; passo++)
+    {
+        shortestpath=INFINITY;
+        for(int v=0; v < numVert; v++)
+            if(shortestpath >= dist[v] && visited[v] == 0)
+            {
+                shortestpath=dist[v];
+                adj=v;
+            }
+        visited[adj]=1;
+            for(int v=0; v < numVert; v++)
+                if(visited[v]==0 && dist[v] > shortestpath + G[adj][v])
+                    dist[v]= shortestpath + G[adj][v];
+    }
+    int sumOfDist =0;
+    for(int v=0; v < numVert; v++)
+        if(v!=sorgente)
+        {
+            if(dist[v]==INFINITY)
+                dist[v]=0;
+            sumOfDist+=dist[v];
+        }
+    return sumOfDist;
+}
