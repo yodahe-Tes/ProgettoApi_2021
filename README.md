@@ -1,4 +1,4 @@
-                                                           Algorithms and Data Structures project
+                                              Algorithms and Data Structures project
 
 The aim of the project is to implement a system capable of ranking graphs of different sizes on the base of the least sum of distances from a node.
 The input consists of two numbers, the number of nodes of the graphs and the length of the
